@@ -1,0 +1,26 @@
+filebeat.inputs:
+  - type: filestream
+    id: mini-siem-backend
+    enabled: true
+    paths:
+      - /var/log/mini-siem/*.log
+    parsers:
+      - ndjson:
+          target: ""
+          overwrite_keys: true
+          add_error_key: true
+
+processors:
+  - add_host_metadata:
+      replace_fields: false
+
+setup.ilm.enabled: false
+setup.template.enabled: true
+setup.template.name: "mini-siem-logs"
+setup.template.pattern: "mini-siem-logs-*"
+setup.kibana:
+  host: http://kibana:5601
+
+output.elasticsearch:
+  hosts: ["http://elasticsearch:9200"]
+  index: "mini-siem-logs-%{+yyyy.MM.dd}"
