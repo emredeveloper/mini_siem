@@ -1,49 +1,49 @@
 # Mini SIEM
 
-Bu demo proje su akisi kurar:
+This demo project establishes the following data flow:
 
-`FastAPI backend -> JSON log dosyasi -> Filebeat -> Elasticsearch -> Kibana`
+`FastAPI backend -> JSON log file -> Filebeat -> Elasticsearch -> Kibana`
 
-Amac:
+**Purpose:**
 
-- Backend loglarini merkezi olarak toplamak
-- Hatalari ve trafik artislarini Kibana uzerinden gormek
-- Istek surelerini ve problemli endpointleri izlemek
+- Centrally collect backend logs
+- View errors and traffic anomalies through Kibana
+- Monitor request durations and problematic endpoints
 
-## Klasor Yapisi
+## Folder Structure
 
-- `backend/`: Ornek API ve JSON log uretimi
-- `filebeat/`: Loglari Elasticsearch'e tasiyan agent config'i
-- `kibana/`: Dashboard olusturma adimlari
-- `scripts/`: Demo trafik uretme yardimcilari
+- `backend/`: Sample API and JSON log generation
+- `filebeat/`: Agent configuration that ships logs to Elasticsearch
+- `kibana/`: Dashboard creation steps
+- `scripts/`: Demo traffic generation helpers
 
-## Gereksinimler
+## Requirements
 
-- Docker Desktop veya Docker Engine + Docker Compose
+- Docker Desktop or Docker Engine + Docker Compose
 
-## 1. Stack'i Baslat
+## 1. Start the Stack
 
-Bu klasorde:
+In this directory:
 
 ```powershell
 docker compose up --build
 ```
 
-Servisler:
+Services:
 
 - Backend: `http://localhost:8000`
 - Elasticsearch: `http://localhost:9200`
 - Kibana: `http://localhost:5601`
 
-## 2. Ornek Trafik Uret
+## 2. Generate Sample Traffic
 
-Yeni bir terminalde:
+In a new terminal:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\generate-traffic.ps1
 ```
 
-Istersen elle de test edebilirsin:
+Or test manually if you prefer:
 
 ```powershell
 Invoke-RestMethod http://localhost:8000/health
@@ -51,13 +51,13 @@ Invoke-RestMethod http://localhost:8000/simulate/slow
 Invoke-RestMethod http://localhost:8000/simulate/error
 ```
 
-## 3. Elasticsearch'e Gelen Loglari Kontrol Et
+## 3. Verify Logs in Elasticsearch
 
 ```powershell
 Invoke-RestMethod "http://localhost:9200/mini-siem-logs-*/_search?size=5&sort=%40timestamp:desc"
 ```
 
-Beklenen alanlar:
+Expected fields:
 
 - `@timestamp`
 - `message`
@@ -72,30 +72,30 @@ Beklenen alanlar:
 
 ## 4. Kibana Dashboard
 
-Adimlar icin:
+For setup steps, see:
 
 - `kibana/dashboard-guide.md`
 
-Bu guide ile su gorunumleri olusturursun:
+With this guide, you'll create the following visualizations:
 
-- Toplam hata sayisi
-- Dakikalik trafik grafigi
-- 5xx endpointleri
-- Yavas istek tablosu
+- Total error count
+- Traffic per minute chart
+- 5xx status endpoints
+- Slow requests table
 
-## Neden Bu Mimari?
+## Why This Architecture?
 
-Bu ilk surumde backend loglari dogrudan Elasticsearch'e yazmiyor. Bunun yerine loglar once JSON olarak diske yaziliyor, sonra Filebeat bunlari Elasticsearch'e gonderiyor. Bu yapi gercek projelerde daha dayanikli olur:
+In this initial version, the backend doesn't write logs directly to Elasticsearch. Instead, logs are first written as JSON to disk, then Filebeat ships them to Elasticsearch. This approach is more resilient in real-world projects:
 
-- Uygulama Elasticsearch baglantisina dogrudan bagimli olmaz
-- Log forwarding uygulama kodundan ayrilir
-- Log formatini Filebeat seviyesinde gelistirmek kolaylasir
+- The application doesn't depend directly on Elasticsearch connectivity
+- Log forwarding is decoupled from application code
+- Log formatting can be enhanced at the Filebeat level
 
-## Sonraki Adimlar
+## Next Steps
 
-Istersek bir sonraki turda sunlari ekleyebiliriz:
+In future iterations, we could add:
 
-1. Kibana dashboard'unu otomatik import eden saved objects dosyasi
-2. Slack / e-posta alarm mekanizmasi
-3. Filebeat yerine Logstash ile zenginlestirme
+1. Automated Kibana dashboard import via saved objects
+2. Slack / email alerting mechanism
+3. Log enrichment with Logstash instead of Filebeat
 4. Auth, rate limit ve kullanici bazli izleme alanlari
