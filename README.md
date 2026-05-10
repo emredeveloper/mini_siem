@@ -98,4 +98,7 @@ In future iterations, we could add:
 1. Automated Kibana dashboard import via saved objects
 2. Slack / email alerting mechanism
 3. Log enrichment with Logstash instead of Filebeat
+4. API authentication and authorization
+5. Request rate limiting and quota management
+6. Per-user activity tracking and monitoring fields
 4. Auth, rate limit ve kullanici bazli izleme alanlari
